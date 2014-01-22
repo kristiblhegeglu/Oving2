@@ -42,7 +42,8 @@ func main() {
 	Println(i)
 	}
     // No way to wait for the completion of a goroutine (without additional syncronization)
-    // We'll come back to using channels in Exercise 2. For now: Sleep
+    
+    // Well come back to using channels in Exercise 2. For now: Sleep
 	Sleep(100*Millisecond)
 	Println("Done:", i);
 }
@@ -60,7 +61,7 @@ lock = Lock()
 
 
 def adder():
-# In Python you "import" a global variable, instead of "export"ing it when you declare it
+# In Python you import a global variable, instead of exporting it when you declare it
 	
     	global i
     
