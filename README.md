@@ -14,37 +14,36 @@ import (
 )
 
 var i = 0
-ch = make ( chan int, 1)
-ch <- 1
-<- ch
 
-
-func adder(ch) {
+func adder(c chan int) {
 	for x := 0; x < 1000000; x++ {
-		ch <- 1	
+		<- c
 		i++
-		<- ch
+		c <- 1
 		}
 	}
 
-func subtract() {
+func subtract(c chan int) {
 	for x := 0; x < 1000000; x++ {
+		<- c
 		i--
+		c <- 1
 		}
 	}
 
 
 func main() {
 	GOMAXPROCS(NumCPU()) // I guess this is a hint to what GOMAXPROCS does...
-	go adder(ch) // This spawns adder() as a goroutine
-	go subtract()
+	c := make(chan int,1)
+	c <- 1	
+	go adder(c) // This spawns adder() as a goroutine
+	go subtract(c)
 	for x := 0; x < 50; x++ {
-	Println(i)
+		Println(i)
 	}
     // No way to wait for the completion of a goroutine (without additional syncronization)
-    
     // Well come back to using channels in Exercise 2. For now: Sleep
-	Sleep(100*Millisecond)
+	Sleep(1000*Millisecond)
 	Println("Done:", i);
 }
 
@@ -113,25 +112,27 @@ pthread_mutex_t lock;
 
 // Note the return type: void*
 void* adder(){
-	pthread_mutex_lock(&lock);
+	
 	for(int x = 0; x < 1000000; x++){
+		pthread_mutex_lock(&lock);
         	i++;
+		pthread_mutex_unlock(&lock);
 	}
-	pthread_mutex_unlock(&lock);
 	return NULL;
 }
 
 void* subtract(){
-	pthread_mutex_lock(&lock);
 	for(int x = 0; x < 1000000; x++){
+		pthread_mutex_lock(&lock);
 		i--;
+		pthread_mutex_unlock(&lock);
 	}
-	pthread_mutex_unlock(&lock);
 	return NULL;
 }
 
 
 int main(){
+	pthread_mutex_init(& lock, NULL);
 	pthread_t adder_thr;
 	pthread_t subtract_thr;
 	pthread_create(&adder_thr, NULL, adder, NULL);
@@ -147,4 +148,3 @@ int main(){
 	pthread_mutex_destroy(&lock);
 	return 0;    
 }
-
